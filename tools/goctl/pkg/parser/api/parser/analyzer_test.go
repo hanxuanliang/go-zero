@@ -2,6 +2,7 @@ package parser
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,8 +15,11 @@ import (
 
 func Test_Parse(t *testing.T) {
 	t.Run("valid", func(t *testing.T) {
-		_, err := Parse("./testdata/example.api", nil)
+		apiSpec, err := Parse("./testdata/example-dev.api", nil)
 		assert.Nil(t, err)
+
+		specStr, _ := json.Marshal(apiSpec)
+		println(string(specStr))
 	})
 	t.Run("invalid", func(t *testing.T) {
 		data, err := os.ReadFile("./testdata/invalid.api")
