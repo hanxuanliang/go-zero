@@ -12,17 +12,33 @@ func genReqBody(route spec.Route) map[string]interface{} {
 	resp := make(map[string]interface{})
 
 	reqParams := route.RequestType.(spec.DefineStruct)
-
-	bodyParams := reqParams.GetBodyMembers()
+	bodyParams := reqParams.GetFillBodyMembers()
 	formParams := reqParams.GetFormMembers()
+	// embed the request body
 	if len(bodyParams) == 0 && len(formParams) == 0 {
 		return resp
 	}
 	if len(bodyParams) > 0 {
+		bodyValue := DisplayType(reqParams)
+		if len(formParams) > 0 {
+			bodyValue = map[string]interface{}{
+				"type": "object",
+			}
+
+			parameters := make(map[string]interface{})
+			for _, param := range bodyParams {
+				paramSchema := map[string]interface{}{
+					"type": DisplayType(param.Type),
+				}
+				parameters[strings.ToLower(param.Name)] = paramSchema
+			}
+			bodyValue["properties"] = parameters
+		}
+
 		resp["requestBody"] = map[string]interface{}{
 			"content": map[string]interface{}{
 				"application/json": map[string]interface{}{
-					"schema": DisplayType(reqParams),
+					"schema": bodyValue,
 				},
 			},
 		}
@@ -88,7 +104,7 @@ func DisplayType(type_ spec.Type) map[string]interface{} {
 			swaggerType = "boolean"
 		}
 		return map[string]interface{}{"type": swaggerType}
-	case *spec.DefineStruct, spec.DefineStruct:
+	case spec.DefineStruct:
 		return map[string]interface{}{
 			"$ref": fmt.Sprintf("#/components/schemas/%s", v.Name()),
 		}

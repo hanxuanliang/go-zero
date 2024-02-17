@@ -186,6 +186,22 @@ func (t DefineStruct) GetBodyMembers() []Member {
 	return result
 }
 
+// GetFillBodyMembers returns all json fields that need to be filled
+func (t DefineStruct) GetFillBodyMembers() []Member {
+	var result []Member
+	for _, member := range t.Members {
+		if member.IsBodyMember() {
+			if !member.IsInline {
+				result = append(result, member)
+				continue
+			}
+
+			result = append(result, member.Type.(DefineStruct).GetBodyMembers()...)
+		}
+	}
+	return result
+}
+
 // GetFormMembers returns all form fields
 func (t DefineStruct) GetFormMembers() []Member {
 	var result []Member
