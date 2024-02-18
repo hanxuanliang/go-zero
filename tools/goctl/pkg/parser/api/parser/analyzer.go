@@ -359,8 +359,9 @@ func (a *Analyzer) fillInfo() error {
 	if a.api.info != nil {
 		properties = a.convertKV(a.api.info.Values)
 
-		for k, v := range properties {
-			properties[k] = strings.Trim(v, "\"")
+		for _, kv := range a.api.info.Values {
+			key := strings.TrimSuffix(kv.Key.Token.Text, ":")
+			properties[key] = strings.Trim(kv.Value.Token.Text, "\"")
 		}
 	}
 

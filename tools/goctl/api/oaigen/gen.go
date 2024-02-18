@@ -1,12 +1,87 @@
 package oaigen
 
 import (
+	"bytes"
 	_ "embed"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/tools/goctl/api/parser"
+	apiutil "github.com/zeromicro/go-zero/tools/goctl/api/util"
+	"github.com/zeromicro/go-zero/tools/goctl/util/pathx"
 	"strings"
+	"text/template"
 
+	"github.com/spf13/cobra"
 	"github.com/zeromicro/go-zero/tools/goctl/api/spec"
 )
+
+var (
+	// VarStringDir describes the directory.
+	VarStringDir string
+	// VarStringAPI describes the API.
+	VarStringAPI string
+)
+
+//go:embed oai.tpl
+var markdownTemplate string
+
+// OaiCommand gen openapi json file from command line
+func OaiCommand(_ *cobra.Command, _ []string) error {
+	apiFile := VarStringAPI
+	dir := VarStringDir
+
+	if len(apiFile) == 0 {
+		return errors.New("missing -api")
+	}
+	if len(dir) == 0 {
+		return errors.New("missing -dir")
+	}
+
+	return DoGenOpenapiJson(apiFile, dir)
+}
+
+func DoGenOpenapiJson(apiFile, dir string) error {
+	api, err := parser.Parse(apiFile)
+	if err != nil {
+		return err
+	}
+
+	if err := api.Validate(); err != nil {
+		return err
+	}
+
+	logx.Must(pathx.MkdirIfNotExist(dir))
+
+	fp, _, err := apiutil.MaybeCreateFile(".", "", "openapi.json")
+	if err != nil {
+		return err
+	}
+	defer fp.Close()
+
+	serviceMap := genService(api)
+	var (
+		builder   strings.Builder
+		tmplBytes bytes.Buffer
+	)
+	infoStr, _ := json.MarshalIndent(serviceMap["info"], "", "    ")
+	pathStr, _ := json.MarshalIndent(serviceMap["paths"], "", "    ")
+	componentsStr, _ := json.MarshalIndent(serviceMap["components"], "", "    ")
+
+	oaiT := template.Must(template.New("markdownTemplate").Parse(markdownTemplate))
+	if err := oaiT.Execute(&tmplBytes, map[string]string{
+		"info":       string(infoStr),
+		"paths":      string(pathStr),
+		"components": string(componentsStr),
+	}); err != nil {
+		return err
+	}
+
+	builder.Write(tmplBytes.Bytes())
+	_, err = fp.WriteString(strings.Replace(builder.String(), "&#34;", `"`, -1))
+	return err
+}
 
 func genService(api *spec.ApiSpec) map[string]interface{} {
 	res := map[string]interface{}{

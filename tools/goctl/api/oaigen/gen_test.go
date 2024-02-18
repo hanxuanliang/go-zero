@@ -155,7 +155,7 @@ func Test_genRoute(t *testing.T) {
 	}
 }
 
-func Test_genService(t *testing.T) {
+func Test_DoGenOpenapiJson(t *testing.T) {
 	type args struct {
 		source string
 	}
@@ -173,14 +173,9 @@ func Test_genService(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			apiSpec, err := apiParser.Parse(tt.args.source, "")
-			assert.Nil(t, err)
-
-			res := genService(apiSpec)
-
-			serviceStr, err := json.Marshal(res)
-			assert.Nil(t, err)
-			println(string(serviceStr))
+			if err := DoGenOpenapiJson(tt.args.source, ""); err != nil {
+				t.Errorf("DoGenOpenapiJson() error = %v", err)
+			}
 		})
 	}
 }

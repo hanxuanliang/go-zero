@@ -10,6 +10,7 @@ import (
 	"github.com/zeromicro/go-zero/tools/goctl/api/javagen"
 	"github.com/zeromicro/go-zero/tools/goctl/api/ktgen"
 	"github.com/zeromicro/go-zero/tools/goctl/api/new"
+	"github.com/zeromicro/go-zero/tools/goctl/api/oaigen"
 	"github.com/zeromicro/go-zero/tools/goctl/api/tsgen"
 	"github.com/zeromicro/go-zero/tools/goctl/api/validate"
 	"github.com/zeromicro/go-zero/tools/goctl/config"
@@ -23,6 +24,7 @@ var (
 	dartCmd   = cobrax.NewCommand("dart", cobrax.WithRunE(dartgen.DartCommand))
 	docCmd    = cobrax.NewCommand("doc", cobrax.WithRunE(docgen.DocCommand))
 	formatCmd = cobrax.NewCommand("format", cobrax.WithRunE(format.GoFormatApi))
+	oaiCmd    = cobrax.NewCommand("oai", cobrax.WithRunE(oaigen.OaiCommand))
 	goCmd     = cobrax.NewCommand("go", cobrax.WithRunE(gogen.GoCommand))
 	newCmd    = cobrax.NewCommand("new", cobrax.WithRunE(new.CreateServiceCommand),
 		cobrax.WithArgs(cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs)))
@@ -39,6 +41,7 @@ func init() {
 		dartCmdFlags     = dartCmd.Flags()
 		docCmdFlags      = docCmd.Flags()
 		formatCmdFlags   = formatCmd.Flags()
+		oaiCmdFlags      = oaiCmd.Flags()
 		goCmdFlags       = goCmd.Flags()
 		javaCmdFlags     = javaCmd.Flags()
 		ktCmdFlags       = ktCmd.Flags()
@@ -66,6 +69,9 @@ func init() {
 	formatCmdFlags.BoolVar(&format.VarBoolIgnore, "iu")
 	formatCmdFlags.BoolVar(&format.VarBoolUseStdin, "stdin")
 	formatCmdFlags.BoolVar(&format.VarBoolSkipCheckDeclare, "declare")
+
+	oaiCmdFlags.StringVar(&oaigen.VarStringDir, "dir")
+	oaiCmdFlags.StringVar(&oaigen.VarStringAPI, "api")
 
 	goCmdFlags.StringVar(&gogen.VarStringDir, "dir")
 	goCmdFlags.StringVar(&gogen.VarStringAPI, "api")
@@ -99,5 +105,5 @@ func init() {
 	validateCmdFlags.StringVar(&validate.VarStringAPI, "api")
 
 	// Add sub-commands
-	Cmd.AddCommand(dartCmd, docCmd, formatCmd, goCmd, javaCmd, ktCmd, newCmd, pluginCmd, tsCmd, validateCmd)
+	Cmd.AddCommand(dartCmd, docCmd, formatCmd, oaiCmd, goCmd, javaCmd, ktCmd, newCmd, pluginCmd, tsCmd, validateCmd)
 }
