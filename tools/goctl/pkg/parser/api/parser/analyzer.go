@@ -112,6 +112,10 @@ func (a *Analyzer) convert2Spec() error {
 		return err
 	}
 
+	if err := a.fillInfo(); err != nil {
+		return err
+	}
+
 	if err := a.fillService(); err != nil {
 		return err
 	}
@@ -348,6 +352,18 @@ func (a *Analyzer) findDefinedType(name string) (spec.Type, error) {
 	}
 
 	return nil, fmt.Errorf("type %s not defined", name)
+}
+
+func (a *Analyzer) fillInfo() error {
+	properties := make(map[string]string)
+	if a.api.info != nil {
+		for _, kv := range a.api.info.Values {
+			properties[kv.Key.Token.Text] = kv.Value.Token.Text
+		}
+	}
+
+	a.spec.Info.Properties = properties
+	return nil
 }
 
 func (a *Analyzer) getType(expr *ast.BodyStmt) (spec.Type, error) {

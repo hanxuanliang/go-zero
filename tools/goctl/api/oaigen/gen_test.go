@@ -93,3 +93,94 @@ func Test_genRespBody(t *testing.T) {
 		})
 	}
 }
+
+func Test_genSchema(t *testing.T) {
+	type args struct {
+		source string
+		types  []spec.Type
+	}
+	tests := []struct {
+		name string
+		args args
+		want map[string]interface{}
+	}{
+		{
+			name: "test genSchema",
+			args: args{
+				source: "./testdata/example-dev.api",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			apiSpec, err := apiParser.Parse(tt.args.source, "")
+			assert.Nil(t, err)
+
+			res := genSchema(apiSpec.Types)
+
+			schemaStr, err := json.Marshal(res)
+			assert.Nil(t, err)
+			println("schemaStr", string(schemaStr))
+		})
+	}
+}
+
+func Test_genRoute(t *testing.T) {
+	type args struct {
+		source string
+	}
+	tests := []struct {
+		name string
+		args args
+		want map[string]interface{}
+	}{
+		{
+			name: "test genService",
+			args: args{
+				source: "./testdata/example-dev.api",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			apiSpec, err := apiParser.Parse(tt.args.source, "")
+			assert.Nil(t, err)
+
+			res := genRoute(apiSpec.Service)
+
+			routeStr, err := json.Marshal(res)
+			assert.Nil(t, err)
+			println("routeStr", string(routeStr))
+		})
+	}
+}
+
+func Test_genService(t *testing.T) {
+	type args struct {
+		source string
+	}
+	tests := []struct {
+		name string
+		args args
+		want map[string]interface{}
+	}{
+		{
+			name: "test genService",
+			args: args{
+				source: "./testdata/example-dev.api",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			apiSpec, err := apiParser.Parse(tt.args.source, "")
+			assert.Nil(t, err)
+
+			res := genService(apiSpec)
+
+			serviceStr, err := json.Marshal(res)
+			assert.Nil(t, err)
+			println(string(serviceStr))
+		})
+	}
+}
