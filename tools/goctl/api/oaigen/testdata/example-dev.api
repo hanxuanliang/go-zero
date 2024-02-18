@@ -1,0 +1,49 @@
+syntax = "v1"
+
+info (
+	title:   "example service"
+	desc:    "测试swagger生成"
+	author:  "吴彦祖"
+	email:   "support@example.com"
+	version: "1.0.0"
+)
+
+type GetFormReq {
+	Name    string   `form:"name"`
+	Age     int      `form:"age"`
+	Hobbits []string `form:"hobbits"`
+}
+
+type GetFormREsp {
+	Name    string   `json:"name"`
+	Age     int      `json:"age"`
+	Hobbits []string `json:"hobbits"`
+}
+
+type Page {
+	Index int `json:"index"`
+	Size  int `json:"size"`
+}
+
+type (
+	PostFormReq {
+		Page
+		Name    string   `form:"name"`
+		Age     int      `form:"age"`
+		Hobbits []string `form:"hobbits"`
+	}
+	PostFormResp {
+		Name    string   `json:"name"`
+		Age     int      `json:"age"`
+		Hobbits []string `json:"hobbits"`
+	}
+)
+
+@server (
+	group:   example
+	timeout: 3s
+)
+service example {
+	@handler postForm
+	post /example/form (PostFormReq) returns (PostFormResp)
+}
