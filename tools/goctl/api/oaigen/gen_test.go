@@ -173,7 +173,7 @@ func Test_DoGenOpenapiJson(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := DoGenOpenapiJson(tt.args.source, ""); err != nil {
+			if err := DoGenOpenapiJson(tt.args.source, "."); err != nil {
 				t.Errorf("DoGenOpenapiJson() error = %v", err)
 			}
 		})

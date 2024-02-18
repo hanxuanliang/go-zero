@@ -54,7 +54,7 @@ func DoGenOpenapiJson(apiFile, dir string) error {
 
 	logx.Must(pathx.MkdirIfNotExist(dir))
 
-	fp, _, err := apiutil.MaybeCreateFile(".", "", "openapi.json")
+	fp, _, err := apiutil.MaybeCreateFile(dir, "", "openapi.json")
 	if err != nil {
 		return err
 	}
