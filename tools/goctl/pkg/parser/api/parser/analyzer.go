@@ -357,8 +357,10 @@ func (a *Analyzer) findDefinedType(name string) (spec.Type, error) {
 func (a *Analyzer) fillInfo() error {
 	properties := make(map[string]string)
 	if a.api.info != nil {
-		for _, kv := range a.api.info.Values {
-			properties[kv.Key.Token.Text] = kv.Value.Token.Text
+		properties = a.convertKV(a.api.info.Values)
+
+		for k, v := range properties {
+			properties[k] = strings.Trim(v, "\"")
 		}
 	}
 
